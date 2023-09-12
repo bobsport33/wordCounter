@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+<div>
+    <h1>Welcome</h1>
+  
+     {% for word, count in wordCounts %}
+        <li>{{ word }} - {{ count }}</li>
+    {% endfor %}
+</div>
+
+{% endblock %}
+
+{% block title %} This is the title {% endblock %}
