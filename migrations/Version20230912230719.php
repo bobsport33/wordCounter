@@ -10,22 +10,25 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20230911202420 extends AbstractMigration
+final class Version20230912230719 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'create the micro-post table';
+        return '';
     }
 
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE TABLE micro_post (id INT AUTO_INCREMENT NOT NULL, title VARCHAR(255) NOT NULL, text VARCHAR(500) NOT NULL, created DATETIME NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('CREATE SEQUENCE url_entry_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
+        $this->addSql('CREATE TABLE url_entry (id INT NOT NULL, url VARCHAR(500) NOT NULL, notes VARCHAR(500) DEFAULT NULL, created_date TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
     }
 
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('DROP TABLE micro_post');
+        $this->addSql('CREATE SCHEMA public');
+        $this->addSql('DROP SEQUENCE url_entry_id_seq CASCADE');
+        $this->addSql('DROP TABLE url_entry');
     }
 }

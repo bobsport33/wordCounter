@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\UrlEntryRepository;
 use Html2Text\Html2Text;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,32 +12,37 @@ use GuzzleHttp\Client;
 
 
 function countWords($text) {
-    // Remove URLs
+    // clean text
     $text = preg_replace('/https?:\/\/\S+/', '', $text);
-
-    // Remove punctuation and convert to lowercase
     $text = strtolower(preg_replace('/[^A-Za-z0-9\s]/', '', $text));
 
     $words = explode(' ', $text);
+    $totalWords = count($words);
 
     $wordCounts = [];
     foreach ($words as $word) {
-        // Trim whitespace
         $word = trim($word);
 
-        if (!empty($word)) { // Skip empty words
-            // If the word exists in the associative array, increment its count
+        if (!empty($word)) { 
             if (array_key_exists($word, $wordCounts)) {
                 $wordCounts[$word]++;
-            } else { // If the word doesn't exist, initialize its count to 1
+            } else { 
                 $wordCounts[$word] = 1;
             }
         }
     }
 
-    arsort($wordCounts); // Sort the word counts in descending order
+    $wordPercentages = [];
+    foreach ($wordCounts as $word => $count) {
+        $percentage = ($count / $totalWords) * 100;
+        $wordPercentages[$word] = number_format((float)$percentage, 2, '.', '');
+    }
 
-    return $wordCounts;
+    arsort($wordPercentages); 
+
+    $topWordPercentages = array_slice($wordPercentages, 0, 20);
+
+    return $topWordPercentages;
 }
 
 
@@ -46,15 +52,15 @@ class WordCountController extends AbstractController
 {
 
     #[Route('/', name: 'app_index')]
-    public function index(): Response
+    public function index(UrlEntryRepository $posts): Response
     {
-   
+        dd($posts->findAll());
     return $this->render(
       'word-count/index.html.twig'
     );
     }
 
-  #[Route("/api/post", methods: ['POST'], name: "form_submit")]
+  #[Route("/add", methods: ['POST'], name: "form_submit")]
   public function processForm(Request $request): Response
     {
         // Parse form submission
