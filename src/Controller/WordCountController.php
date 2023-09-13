@@ -16,6 +16,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 function countWords($text) {
     // clean text
+    $text = strip_tags($text);
     $text = preg_replace('/https?:\/\/\S+/', '', $text);
     $text = strtolower(preg_replace('/[^A-Za-z0-9\s]/', '', $text));
 
@@ -73,7 +74,7 @@ class WordCountController extends AbstractController
         $form = $this->createFormBuilder($UrlEntry)
             ->add('url')
             ->add('notes')
-            ->add('submit', SubmitType::class, ['label' => 'Save'])
+            // ->add('submit', SubmitType::class, ['label' => 'Save'])
             ->getForm();
 
         $form->handleRequest($request);

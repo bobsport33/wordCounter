@@ -1,19 +1,17 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-
-<div>
-    <h1>Word Density for {{ post.url }}</h1>
-
-    <h6>Notes:</h6>
-    <p>{{ post.notes }}</p>
-  
-     {% for word, count in wordCounts %}
-        <li>{{ word }} - {{count }}</li>
-    {% endfor %}
-</div>
-
- <a href="{{ path('app_index') }}">Home</a>
+    <div class="flex flex-col gap-2">
+        <h1 class="text-lg text-gray-100"><span class="text-gray-300 font-medium">Word Density for:</span> {{ post.url }}</h1>
+        <p class="text-sm text-gray-100"><span class="text-sm text-gray-300 font-medium">Notes:</span> {{ post.notes }}</p>
+        <p class="text-sm text-gray-100"><span class="text-sm text-gray-300 font-medium">Creation On:</span> {{ post.createdDate | date("M j, Y") }}</p>
+        <div class="mx-4">
+            <p class="text-md text-gray-200 font-medium">Top Words</p>
+            {% for word, count in wordCounts %}
+                <p class="text-gray-200">{{ word }} - {{count }}%</p>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}
 
-{% block title %} This is the title {% endblock %}
+{% block title %} Word Density Map of {{ post.url }} {% endblock %}
