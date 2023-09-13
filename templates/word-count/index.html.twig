@@ -2,5 +2,17 @@
 
 {% block body %}
     index
-    {{ include('/word-count/_page_input.html.twig')}}
+
+     {% if posts|length > 0 %}
+        <ul>
+            {% for post in posts %}
+                <li><a href="{{ path('app_page_details', {id: post.id}) }}">{{post.url}}</a></li>
+            
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div>No entries yet. Please add a url.</div>
+    {% endif %}    
+    
+    <a href="{{ path('app_form') }}">Add</a>
 {% endblock %}

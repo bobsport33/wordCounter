@@ -2,13 +2,16 @@
 
 namespace App\Controller;
 
-use App\Repository\UrlEntryRepository;
+use DateTime;
+use GuzzleHttp\Client;
+use App\Entity\UrlEntry;
 use Html2Text\Html2Text;
+use App\Repository\UrlEntryRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use GuzzleHttp\Client;
 
 
 function countWords($text) {
@@ -54,43 +57,52 @@ class WordCountController extends AbstractController
     #[Route('/', name: 'app_index')]
     public function index(UrlEntryRepository $posts): Response
     {
-        dd($posts->findAll());
+   
+       
     return $this->render(
-      'word-count/index.html.twig'
+      'word-count/index.html.twig', [
+        'posts' => $posts->findALl()
+      ]
     );
     }
 
-  #[Route("/add", methods: ['POST'], name: "form_submit")]
-  public function processForm(Request $request): Response
+    #[Route("/add",  name: "app_form")]
+    public function processForm(Request $request, UrlEntryRepository $posts): Response
     {
-        // Parse form submission
-        $url = $request->query->get('website_url');
-        $id=0;
+        $UrlEntry = new UrlEntry();
+        $form = $this->createFormBuilder($UrlEntry)
+            ->add('url')
+            ->add('notes')
+            ->add('submit', SubmitType::class, ['label' => 'Save'])
+            ->getForm();
 
-        // Connect to db
+        $form->handleRequest($request);
 
-        // Add url to db
+        if ($form->isSubmitted() && $form->isValid()) {
+            $post = $form->getData();
+            $post->setCreatedDate(new DateTime());
+            $posts->save($post, true);
+            $id = $post->getId();
+          
+            // redirect
+            return $this->redirectToRoute('app_page_details', array('id' => $id));
+        }
+        
+        return $this->render('word-count/add.html.twig', [
+            'form' => $form
+        ]);
 
-        // get id from db to pass to redirect
-
-        // Redirect to webpage about db
-        return $this->redirectToRoute('page_details', ['id' => $id]);
     }
 
 
-    #[Route('/page/{id<\d+>}', name: "page_details")]
-    public function showOne(int $id): Response
+    #[Route('/page/{id<\d+>}', name: "app_page_details")]
+    public function showOne(int $id, UrlEntryRepository $posts): Response
     {
-    // Connect to the database and retrieve the URL
-    // $entityManager = $this->getDoctrine()->getManager();
-    // $page = $entityManager->getRepository(Page::class)->find($id);
-
-    // if (!$page) {
-    //     throw $this->createNotFoundException('Page not found');
-    // }
+    // Connect to the database and retrieve post
+    $post = $posts->find($id);
 
     // Get the URL from the database
-    $url = "https://www.chicagotribune.com/";
+    $url = $post->getUrl();
 
     // Use Guzzle HTTP Client to fetch the HTML content
     $client = new Client(['verify'=>false]);
@@ -111,6 +123,7 @@ class WordCountController extends AbstractController
         'word-count/page_details.html.twig',
         [
             'wordCounts' => $wordCounts,
+            'post' => $post
         ]
     );
 }

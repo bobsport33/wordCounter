@@ -3,13 +3,17 @@
 {% block body %}
 
 <div>
-    <h1>Welcome</h1>
+    <h1>Word Density for {{ post.url }}</h1>
+
+    <h6>Notes:</h6>
+    <p>{{ post.notes }}</p>
   
      {% for word, count in wordCounts %}
         <li>{{ word }} - {{count }}</li>
     {% endfor %}
 </div>
 
+ <a href="{{ path('app_index') }}">Home</a>
 {% endblock %}
 
 {% block title %} This is the title {% endblock %}
