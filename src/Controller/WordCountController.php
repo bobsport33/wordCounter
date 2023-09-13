@@ -49,17 +49,12 @@ function countWords($text) {
     return $topWordPercentages;
 }
 
-
-
-
 class WordCountController extends AbstractController
 {
-
     #[Route('/', name: 'app_index')]
     public function index(UrlEntryRepository $posts): Response
     {
    
-       
     return $this->render(
       'word-count/index.html.twig', [
         'posts' => $posts->findALl()
@@ -92,32 +87,25 @@ class WordCountController extends AbstractController
         return $this->render('word-count/add.html.twig', [
             'form' => $form
         ]);
-
     }
-
 
     #[Route('/page/{id<\d+>}', name: "app_page_details")]
     public function showOne(int $id, UrlEntryRepository $posts): Response
     {
-    // Connect to the database and retrieve post
+    // find post and get url
     $post = $posts->find($id);
-
-    // Get the URL from the database
     $url = $post->getUrl();
 
-    // Use Guzzle HTTP Client to fetch the HTML content
+    // fetch HTML content
     $client = new Client(['verify'=>false]);
     $response = $client->get($url);
     $htmlContent = $response->getBody()->getContents();
 
-    
-    // Get html from webpage
+    // html to text
     $html2Text = new Html2Text($htmlContent);
-
-    // Convert HTML to plain text
     $text = $html2Text->getText();
 
-    // Now you have the HTML content, you can perform your calculations
+    // run calculations
     $wordCounts = countWords(strip_tags($text));
 
     return $this->render(
